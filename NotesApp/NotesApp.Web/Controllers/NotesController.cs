@@ -20,7 +20,6 @@ namespace NotesApp.Web.Controllers
             _logger = logger;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -47,9 +46,7 @@ namespace NotesApp.Web.Controllers
             return Ok(note);
         }
 
-
         //add or edit
-
         [HttpPost("edit")]
         public async Task<IActionResult> Edit(Note note)
         {
@@ -87,7 +84,6 @@ namespace NotesApp.Web.Controllers
             return Ok();
         }
 
-        
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -106,6 +102,5 @@ namespace NotesApp.Web.Controllers
 
             return Ok();
         }
-        
     }
 }
