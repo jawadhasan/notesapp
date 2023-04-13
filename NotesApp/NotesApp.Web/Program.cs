@@ -9,8 +9,10 @@ builder.Services.AddControllers();
 
 // Configure S3Settings using config
 builder.Services.Configure<S3Settings>(builder.Configuration.GetSection("Storage"));
+builder.Services.Configure<SQSSettings>(builder.Configuration.GetSection("Queueing"));
 
 builder.Services.AddSingleton<INoteStorageService, S3NoteStorageService>();
+builder.Services.AddSingleton<IEventPublisher, SQSEventPublisher>();
 
 var app = builder.Build();
 

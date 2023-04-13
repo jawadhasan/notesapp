@@ -10,17 +10,20 @@ namespace NotesApp.Web.Controllers
     public class NotesController : Controller
     {
         private INoteStorageService _noteStorageService;
+        private IEventPublisher _eventPublisher;
 
         private readonly ILogger<NotesController> _logger;
         private readonly string _user = "notesappuser"; //hard-coded for now
 
-        public NotesController(INoteStorageService noteStorageService, ILogger<NotesController> logger)
+        public NotesController(INoteStorageService noteStorageService, IEventPublisher eventPublisher, 
+            ILogger<NotesController> logger)
         {
             _noteStorageService = noteStorageService;
+            _eventPublisher = eventPublisher;
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet] 
         public async Task<IActionResult> Get()
         {
             _logger.LogWarning($"Getting note list for user '{_user}'");
@@ -42,6 +45,13 @@ namespace NotesApp.Web.Controllers
             }
 
             _logger.LogInformation($"Editing note with ID '{id}' for user '{_user}'");
+            _eventPublisher.PublishEvent(new Event
+            {
+                EventType = EventType.NoteViewed,
+                TimeStamp = DateTime.UtcNow,
+                Username = _user,
+                NoteId = note.NoteId.Value
+            });
 
             return Ok(note);
         }
@@ -79,7 +89,13 @@ namespace NotesApp.Web.Controllers
 
             await _noteStorageService.SaveNote(note);
 
-
+            _eventPublisher.PublishEvent(new Event
+            {
+                EventType = eventType,
+                TimeStamp = DateTime.UtcNow,
+                Username = _user,
+                NoteId = note.NoteId.Value
+            });
 
             return Ok();
         }
@@ -97,6 +113,13 @@ namespace NotesApp.Web.Controllers
             }
 
             await _noteStorageService.DeleteNote(_user, id);
+            _eventPublisher.PublishEvent(new Event
+            {
+                EventType = EventType.NoteDeleted,
+                TimeStamp = DateTime.UtcNow,
+                Username = _user,
+                NoteId = id
+            });
 
             _logger.LogInformation($"Deleting note with ID '{id}' for user '{_user}'");
 
