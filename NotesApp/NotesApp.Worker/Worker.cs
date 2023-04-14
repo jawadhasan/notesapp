@@ -1,20 +1,30 @@
+using NotesApp.Worker.Services;
+
 namespace NotesApp.Worker
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        private readonly IEventConsumer _eventConsumer;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(IEventConsumer eventConsumer, ILogger<Worker> logger)
         {
             _logger = logger;
+            _eventConsumer = eventConsumer;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+
+            _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+
+            // Starting event consumer
+            _eventConsumer.Start();
+
+            if (stoppingToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(1000, stoppingToken);
+                //stop event consumer
+                _eventConsumer.Stop();
             }
         }
     }
