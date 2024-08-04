@@ -16,6 +16,9 @@
 *.userprefs
 .cache
 dist
+
+.vscode/
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
